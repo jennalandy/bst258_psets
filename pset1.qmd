@@ -1,0 +1,516 @@
+---
+title: "Problem Set #1"
+subtitle: "BST 258: Causal Inference -- Theory and Practice"
+author: "Jenna Landy"
+date: "02/16/2024"
+format:
+  pdf:
+    documentclass: scrartcl
+    papersize: letter
+    fontsize: 11pt
+    geometry:
+      - margin=1in
+      - heightrounded
+    number-sections: false
+    colorlinks: true
+    link-citations: true
+    callout-appearance: simple
+    callout-icon: false
+    # figure options
+    fig-width: 6
+    fig-asp: 0.618
+    fig-cap-location: bottom
+    # code block options
+    code-line-numbers: false
+    code-block-bg: false
+    highlight-style: nord
+bibliography: refs.bib
+---
+
+{{< pagebreak >}}
+
+## Question 1
+
+::: {.callout-note title="Answer"}
+My GitHub repo is here <https://github.com/jennalandy/bst258_psets>
+:::
+
+{{< pagebreak >}}
+
+## Question 2
+
+Consider a completely randomized experiment (CRE) with $𝑖 = 1, ... , 𝑛$
+units, $𝑚$ of which are treated,\
+where $𝐴_𝑖$ is 1 when unit $𝑖$ is treated.
+
+a.  What is the marginal distribution of the treatment indicator $A$?
+
+    ::: {.callout-note title="Answer"}
+    We can view treatments in a completely randomized experiment as
+    marbles of two colors (m green for treated, n-m red for untreated)
+    in an urn. In this setting we know the marginal probability of a
+    unit being treated is $m/n$.\
+    \
+    $A \sim Bernoulli(p)$ where $p = m/n$.
+    :::
+
+b.  What is the joint distribution of $A_i$ and $A_j$ for two units
+    $i \ne j$? (Hint: This amounts to completing a contingency table.)
+
+    ::: {.callout-note title="Answer"}
+    Continuing with the idea of colored marbles in an urn, once a single
+    marble is drawn (without replacement), it changes the probabilities
+    for future draws. For example,
+    $Pr(A_i = 1|A_j = 1) = \frac{m-1}{n-1}$.
+
+    \
+    We can compute a joint probability as
+    $Pr(A_i = 1, A_j = 1) = Pr(A_j = 1) Pr(A_i = 1|A_j = 1) = \frac{m}{n}\cdot\frac{m-1}{n-1}$.\
+    \
+    Below is the contingency table representing the joint distribution
+    of any two treatment assignments $A_i$ and $A_j$ where $i\ne j$.
+
+    | $\mathbf{p(A_i, A_j) = }$ | $A_i = 1$                         | $A_i = 0$                             |
+    |--------------------|-------------------------|----------------------------|
+    | $A_j = 1$                 | $\frac{m}{n}\cdot\frac{m-1}{n-1}$ | $\frac{m}{n}\cdot\frac{n-m}{n-1}$     |
+    | $A_j = 0$                 | $\frac{n-m}{n}\cdot\frac{m}{n-1}$ | $\frac{n-m}{n}\cdot\frac{n-m-1}{n-1}$ |
+
+    Note that the off-diagonal probabilities are equivalent.
+    :::
+
+c.  What are $Var(A_i)$ and $Cov(A_i, A_j)$ for $i \ne j$?
+
+    ::: {.callout-note title="Answer"}
+    $Var(A_i) = \frac{m}{n}(1 - \frac{m}{n})$ using the fact that
+    $A_i \sim Bernoulli(\frac{m}{n})$
+
+    $Cov(A_i, A_j) = E[A_iA_j] - E[A_i]E[A_j] = \frac{m}{n}\cdot\frac{m-1}{n-1} - (\frac{m}{n})^2$
+
+    **\
+    Derivation:**
+
+    -   $E[A_i] = \frac{m}{n}$ for all $i$ using the fact that
+        $A_i \sim Bernoulli(\frac{m}{n})$
+
+    -   $E[A_iA_j] = \sum_{a_i = 0}^1\sum_{a_j = 0}^1a_ia_jPr(A_i = a_i, A_j = a_j) = 1\cdot 1\cdot Pr(A_i = 1, A_j = 1)$
+        because any term with $a_i = 0$ or $a_j = 0$ drops out. So
+        $E[A_iA_j] = \frac{m}{n}\cdot\frac{m-1}{n-1}$.
+    :::
+
+d.  The sample Average Treatment Effect on the Treated (ATT) is
+    $\theta_{ATT} = \frac{1}{m}\sum_{i = 1}^n A_i (Y_i(1) - Y_i(0))$.
+    What is the sample ATT in expectation?
+
+    ::: {.callout-note title="Answer"}
+    $E[\theta_{ATT}] = \theta^{SATE}_n = \psi^{SATE}$ which is the
+    sample average treatment effect.
+
+    \
+    **Derivation**:
+
+    -   $E[A_i(Y_i(1) - Y_i(0))] = E[A_i]\cdot E[(Y_i(1) - Y_i(0))]$
+        because randomization gives $A \perp Y(a))$.
+
+    -   $E[A_i] = \frac{m}{n}$ as shown in (d).
+
+    -   So
+        $E[A_i(Y_i(1) - Y_i(0))] = \frac{m}{n}\cdot E[(Y_i(1) - Y_i(0))]$
+
+    -   Then
+        $E[\theta_{ATT}] = \frac{1}{m}\sum_{i = 1}^nE[A_i(Y_i(1) - Y_i(0))] = \frac{1}{n}\sum_{i = 1}^nE[Y_i(1) - Y_i(0)]$
+        which we recognize as the sample average treatment effect
+        $\theta^{SATE}_n = \psi^{SATE}$.
+    :::
+
+{{< pagebreak >}}
+
+## Question 3
+
+Consider an additive treatment effect model, i.e.,
+$\theta = Y_i(1) − Y_i(0)$ for all $i$, so $𝑌_𝑖(1) = 𝑌_𝑖(0) + \theta$.
+Show that $Var(𝑌_𝑖(1)) = Var(𝑌_𝑖(0))$ and that the correlation
+$\rho(𝑌_𝑖(1), 𝑌_i(0)) = 1$, where expectations are sample expectations,
+i.e., $E[Y_𝑖(1)] ≔ \frac{1}{n}\sum_{i = 1}^nY_i(1)$.
+
+::: {.callout-note title="Answer"}
+To show, $Var(𝑌_𝑖(1)) = Var(𝑌_𝑖(0))$ I rely on the fact that $\theta$ is
+a constant so $Var(\theta) = 1$. For both pieces, I use the fact that
+$Cov(Y_i(0), \theta) = 0$, also because $\theta$ is a constant.
+
+$$
+\begin{aligned}
+Y_i(1) &= Y_i(0) + \theta, \text{ so}\\
+Var(Y_i(1)) & = Var(Y_i(0)) + Var(\theta) + Cov(Y_i(0), \theta)\\
+&= Var(Y_i(0)) \checkmark
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+Cov(Y_i(1), Y_i(0)) & = Cov(Y_i(0) + \theta, Y_i(0))\\
+& = Cov(Y_i(0)_, Y_i(0)) + Cov(\theta, Y_i(0))\\
+& = Var(Y_i(0)) + 0\\
+\rho(Y_i(1), Y_i(0)) & = \frac{Cov(Y_i(1), Y_i(0))}{\sqrt{Var(Y_i(1))\cdot Var(Y_i(0))}}\\
+& = \frac{Var(Y_i(0))}{\sqrt{Var(Y_i(0))^2}} = 1\checkmark
+\end{aligned}
+$$
+:::
+
+{{< pagebreak >}}
+
+## Question 4
+
+It's tea time: (a hologram of) R.A. Fisher places eight cups of tea
+(with milk) in front of you and\
+asks you to identify which cups had tea poured before milk and
+vice-versa. Prior to giving you\
+the cups of tea, Fisher poured milk before tea in four of them and tea
+before milk in the other\
+four. The ordering in which the cups have been served is random. What is
+the probability that\
+you correctly guess 0, 1, 2, 3, or 4 of all of the cups that had tea
+poured first?
+
+::: callout-note
+Guessing at completely random, then guessing which four cups had tea
+poured first is equivalent to partitioning the eight glasses into four
+that are "guessed" and four that are not. We can compute the probability
+of "x" correct guesses by considering the number of partitions with "x"
+correct divided by the total number of partitions.\
+
+There are ${8 \choose 4} = 70$ total possible partitions.
+
+-   **0 successes**: To have 0 successful guesses, we must guess 0 of
+    the 4 "tea-first" cups and 4 of the 4 "milk-first" cups. This is
+    ${4\choose 4}\cdot {4\choose 0} = 1$ partition that will lead to 0
+    successes, giving $Pr(0 \text{ successes}) = 1/70 \approx 0.014$
+
+-   **1 success**: There are ${4 \choose 1}{4\choose 3} = 16$ partitions
+    that will lead to 1 success, giving
+    $Pr(1 success) = 16/70 \approx 0.229$
+
+Continuing this pattern gives
+
+-   **2 successes**: $36/70 = 0.514$
+
+-   **3 successes**: $16/70 = 0.229$
+
+-   **4 successes**: $1/70=0.014$
+:::
+
+## Question 5
+
+The table below displays the success rates of two distinct,
+investigational treatments for kidney\
+stones, labeled as $𝐴$ and $𝐵$. A study enrolls $𝑛 = 700$ participants,
+assigning $𝑛 = 350$ individuals\
+to either of the treatment arms, $𝐴$ and $𝐵$. To summarize data from the
+study, individuals' kidney\
+stones are categorized as either small or large, and Table 1 is
+constructed to summarize the success\
+rates of each of the two treatments.
+
+|              | Treatment A   | Treatment B   |
+|--------------|---------------|---------------|
+| Small Stones | 93% (81/87)   | 87% (234/270) |
+| Large Stones | 73% (192/263) | 69% (55/80)   |
+| Both         | 78% (273/350) | 83% (289/350) |
+
+: Table 1: Success rates in arms 𝐴 and 𝐵 versus kidney stone size
+
+Studying Table 1, your colleague remarks at the discrepancy between the
+superior overall success rate of treatment $𝐵$ and its relatively lower
+success (versus treatment $𝐴$) when stratifying cases by\
+kidney stone size.
+
+a.  Describe possible factors that might have contributed to this
+    seemingly contradictory result.
+
+    ::: {.callout-note title="Answer"}
+    We were not told that the two treatments were randomly assigned. In
+    fact, we see that treatment $A$ is assigned to 76.7% of patients
+    with large stones ($263/(263+80)$) but only to 24.4% of patients
+    with small stones ($87/(97 + 270)$). Further, large stones are
+    generally less likely to be treated successful (72% overall success
+    for large versus 88% overall success for small).\
+
+    It is likely that patients with more extreme (large) kidney stones
+    were assigned treatment $A$ because doctors believe it is most
+    effective in these cases. Perhaps treatment $A$ is more invasive and
+    only necessary for large kidney stones.\
+
+    This is an example of Simpson's paradox. The size of the patient's
+    stones is a confounder of the association between treatment and
+    success.
+    :::
+
+b.  Alarmed by this discrepancy, your colleague asks you to further
+    segment the results by reported gender. This newly refined look at
+    the data suggests that for both small and large\
+    kidney stones, treatment $𝐵$ is consistently more effective than
+    treatment $𝐴$ across all genders. Construct a hypothetical (i.e.,
+    candidate) table that illustrates this (ensure that your\
+    candidate table is consistent with the information given in Table
+    1).
+
+    ::: {.callout-note title="Answer"}
+    The expanded table below shows that for both small and large kidney
+    stones, treatment B is more effective than treatment A across all
+    genders.
+
+    |                  | Treatment A     | Treatment B     |
+    |------------------|-----------------|-----------------|
+    | **S**mall Stones |                 |                 |
+    | Female           | 70.0% (7/10)    | 78.6% (118/150) |
+    | Male             | 96.1% (74/77)   | 96.6% (116/120) |
+    | Large Stones     |                 |                 |
+    | Female           | 65% (65/100)    | 67.1% (47/70)   |
+    | Male             | 79.4% (127/163) | 80% (8/10)      |
+    | **Total**        | 273/350         | 289/350         |
+    :::
+
+c.  What is this phenomenon (it has a name)? What are its broader
+    implications and significance in the interpretation of data?
+
+    ::: {.callout-note title="Answer"}
+    This is an example of Simpson's paradox. The broader implication of
+    Simpson's paradox is that observed population-level associations
+    between two variables, $A$ and $Y$, may be due to mutual association
+    with other (possibly unmeasured) variables, known as confounders,
+    $L$. This can be seen as population-level associations that go away
+    or reverse once the data is divided into sub-populations.\
+
+    The key takeaway is that *correlation does not imply causation*, and
+    there may always be unmeasured confounders in observational data.
+    :::
+
+## Question 6
+
+::: callout-warning
+Below are helper functions to compute our difference in means estimates
+for the ATE, the variance of this estimator as defined in lecture notes,
+and to simulate the sharp null distribution.
+
+```{r}
+# Computes difference in means estimate for ATE
+compute_ATE_DM <- function(treatments, outcomes) {
+    mean(outcomes$Y_1[treatments == 1]) - 
+    mean(outcomes$Y_0[treatments == 0])
+}
+
+# Computes upper limit of variance of DM estimator for ATE
+compute_Var_ATE_DM <- function(treatments, outcomes) {
+    n1 <- sum(treatments == 1)
+    n0 <- sum(treatments == 0)
+    
+    Y0s <- outcomes$Y_1[treatments == 0]
+    Y1s <- outcomes$Y_1[treatments == 1]
+    v0 <- sum((Y0s - mean(Y0s))**2)/(n0-1)
+    v1 <- sum((Y1s - mean(Y1s))**2)/(n1-1)
+
+    v1/n1 + v0/n0
+}
+
+# Simulate Fisher's sharp null distribution
+# Y_i(1) - Y_i(0) = 0, set Y_i(1) and Y_i(0) 
+#     to same value for all repetitions 
+simulate_sharp_null <- function(
+    N, outcomes,
+    repetitions = 10000
+) {
+    outcomes$Y_1 = outcomes$Y_0
+    ATE_DM_null <- vector(length = repetitions)
+    for (rep in 1:repetitions) {
+        treatments = sample(c(
+            rep(0, round(N*pr_treatment)), 
+            rep(1, N - round(N*pr_treatment))
+        ))
+        ATE_DM_null[rep] = compute_ATE_DM(treatments, outcomes)
+    }
+    return(ATE_DM_null)
+}
+```
+
+Below is a function to compute the power of each test given sample size
+$N$
+
+```{r}
+compute_powers <- function(
+    N, mu_1, mu_0, sigmasq,
+    alpha, nsim, pr_treatment
+) {
+    Y_1 = rnorm(N, mu_1, sd = sqrt(sigmasq))
+    Y_0 = rnorm(N, mu_0, sd = sqrt(sigmasq))
+    outcomes = list(Y_1 = Y_1, Y_0 = Y_0)
+    
+    weak_null_cutoff = qt(c(alpha/2, 1-alpha/2), df = N-2)
+    
+    sharp_null = simulate_sharp_null(N, outcomes)
+    sharp_null_cutoff = quantile(sharp_null, c(alpha/2, 1-alpha/2))
+    
+    ATE_DM = vector(length = nsim)
+    Var_ATE_DM = vector(length = nsim)
+    for (sim in 1:nsim) {
+        treatments = sample(c(
+            rep(0, round(N*pr_treatment)), 
+            rep(1, N - round(N*pr_treatment))
+        ))
+        ATE_DM[sim] = compute_ATE_DM(treatments, outcomes)
+        Var_ATE_DM[sim] = compute_Var_ATE_DM(treatments, outcomes)
+    }
+        
+    # power = Pr(reject)
+    reject_weak_null <- ATE_DM/sqrt(Var_ATE_DM) < weak_null_cutoff[1] | 
+                        ATE_DM/sqrt(Var_ATE_DM) > weak_null_cutoff[2]
+    
+    reject_strong_null <- ATE_DM < sharp_null_cutoff[1] | 
+                          ATE_DM > sharp_null_cutoff[2]
+    
+    weak_power = mean(reject_weak_null)
+    strong_power = mean(reject_strong_null)
+    
+    return(list(
+        N = N,
+        weak_norm = weak_power,
+        strong = strong_power
+    ))
+}
+```
+
+This code runs the power analysis for each sample size N in
+`{20, 50, 100, 200, 500}` and records the power for each test in a
+table.
+
+```{r}
+set.seed(123)
+
+mu_0 = 0
+mu_1 = 1/10
+sigmasq = 1/16
+alpha = 0.05
+nsim = 1000
+pr_treatment = 0.5
+
+powers = matrix(ncol = 3, nrow = 0)
+for (N in c(20, 50, 100, 200, 500)) {
+    powers = rbind(
+        powers, 
+        compute_powers(
+            N = N,
+            mu_1 = mu_1, mu_0 = mu_0, sigmasq = sigmasq,
+            alpha = alpha, nsim = nsim, pr_treatment = pr_treatment
+        )
+    )
+}
+
+powers
+```
+
+```{r}
+plot(
+    powers[,1], powers[,2], col = 'red', 
+    xlab = "sample size (n)", ylab = "Power", 
+    main = "Power for Tests of the Weak and Strong Nulls"
+)
+points(powers[,1], powers[,3], col = 'blue')
+legend(
+    "bottomright", legend = c('weak','strong'), 
+    col = c('red','blue'), pch = 1
+)
+```
+
+We see the expected trend that power increases with sample size for both
+tests. However, we see that the power of the strong null is not always
+greater than the power of the weak null. In fact, which the test that is
+more powerful changes at each sample size without a clear pattern.\
+
+This is because although Neymon's weak null implies Fisher's strong
+null, that doesn't mean that Neymon's rejection region is *not* a subset
+of Fisher's rejection region. This is because there. My intuition says
+this is because Fisher's strong null is not in terms of the ATE, so it
+doesn't make sense to put them on the same axes or scale.
+:::
+
+## Question 7
+
+Consider a completely randomized experiment (CRE) having enrolled
+$𝑖 = 1, ... , 𝑛$ study units, $𝑚$ of which receive the treatment
+condition. Let $𝐴_𝑖$ be the indicator of the $i$th unit having received
+the treatment, and, further, define
+$\bar{Y}_1 = \frac{1}{m}\sum_{i = 1}^nA_iY_i$ be the average outcome of
+the treated units, and similarly define
+$\bar{Y}_0 = \frac{1}{n-m}\sum_{i = 1}^n (1-A_i)Y_i$. You have been
+tasked with estimating the average treatment effect (ATE), for which it
+suﬀices to solve the following least squares program
+
+$$min_{\alpha,\beta}\frac{1}{2n}\sum_{i = 1}^n(Y_i - \alpha - \beta A_i)^2$$
+
+a.  Solve the linear program in $(\alpha, \beta)$ to obtain solutions
+    for each of the two parameters, denoting these
+    $(\hat \alpha, \hat \beta)$.
+
+    ::: {.callout-note title="Answer"}
+    $(\hat \alpha, \hat \beta) = (\bar{Y}_0, \bar{Y}_1 - \bar{Y}_0)$
+
+    **\
+    Derivation**:
+
+    -   $f = \frac{1}{2n}\sum_{i = 1}^n(Y_i - \alpha - \beta A_i)^2$
+
+    -   Set the partial derivatives to zero
+
+        $\frac{\partial}{\partial \alpha}f = -\frac{1}{n}\sum_{i = 1}^n (Y_i - \alpha - \beta A_i) \stackrel{set}{=} 0 \implies \beta m = \sum_{i = 1}^nY_i - n\alpha$
+
+        $\frac{\partial}{\partial \beta}f = -\frac{1}{n}\sum_{i = 1}^n A_i(Y_i - \alpha - \beta A_i) \stackrel{set}{=} 0 \implies \beta m = \sum_{i = 1}^nA_iY_i - m\alpha$
+
+    -   Solve for $\alpha$ using the above system of equations
+
+        $\sum_{i = 1}^nY_i - n\alpha = \sum_{i = 1}^nA_iY_i - m\alpha$
+
+        $\sum_{i = 1}^nY_i - \sum_{i = 1}^nA_i Y_i = \alpha (n - m)$
+
+        $\hat \alpha = \frac{1}{n-m}\sum_{i = 1}^nY_i(1-A_i) = \bar{Y}_0$
+
+    -   Plug $\hat{\alpha}$ into the
+        $\beta m = \sum_{i = 1}^nA_iY_i - m\alpha$ and solve for $\beta$
+
+        $\beta m = \sum_{i = 1}^nA_iY_i - m\bar{Y}_0 = m\bar{Y}_1 - m\bar{Y}_0$
+
+        $\hat{\beta} = \bar{Y}_1 - \bar{Y}_0$
+
+    -   Check that this is in fact a minimum
+
+        $\frac{\partial^2}{\partial \alpha^2}f = 1$
+
+        $\frac{\partial^2}{\partial \beta^2} f = -\frac{1}{n}\sum_{i = 1}^n -A_i^2 = \frac{1}{n}\sum_{i = 1}^n A_i = m/n$
+
+        $\frac{\partial^2}{\partial\alpha \partial \beta} = \frac{\partial^2}{\partial \beta \partial \alpha} = -\frac{1}{n}\sum_{i = 1}^n- A_i = m/n$
+
+        $H = \begin{bmatrix}1 & m/n\\ m/n & m/n\end{bmatrix}$
+
+        $det(H) = m/n -(m/n)^2 >0$ because $m/n <1$ so $(m/n)^2 < m/n$
+        AND both $\frac{\partial^2}{\partial \alpha^2}f>0$ and
+        $\frac{\partial^2}{\partial \beta^2}f >0$. Together, this shows
+        that the estimates $\hat \alpha$ and $\hat \beta$ are in fact
+        minimums of the loss $f$.
+    :::
+
+b.  Is $\hat{\beta}$ a valid estimator of the ATE? Explain your answer.
+
+    ::: {.callout-note title="Answer"}
+    The estimate $\hat \beta$ is equivalent to our standard difference
+    ofmeans estimator. We showed in class that in the case of a
+    completely randomized experiment, this estimator is unbiased for the
+    SATE assuming consistency.
+
+    \
+    \
+    It we were instead looking at a Bernoulli trails experiment, it
+    would beunbiased for the ATE. Because this is not the case,
+    $\hat \beta$ is not an appropriate estimator of the ATE.
+    :::
+
+## References
+
+::: {#refs}
+:::
