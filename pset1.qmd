@@ -71,7 +71,7 @@ b.  What is the joint distribution of $A_i$ and $A_j$ for two units
     of any two treatment assignments $A_i$ and $A_j$ where $i\ne j$.
 
     | $\mathbf{p(A_i, A_j) = }$ | $A_i = 1$                         | $A_i = 0$                             |
-    |--------------------|-------------------------|----------------------------|
+    |---------------------------|-----------------------------------|---------------------------------------|
     | $A_j = 1$                 | $\frac{m}{n}\cdot\frac{m-1}{n-1}$ | $\frac{m}{n}\cdot\frac{n-m}{n-1}$     |
     | $A_j = 0$                 | $\frac{n-m}{n}\cdot\frac{m}{n-1}$ | $\frac{n-m}{n}\cdot\frac{n-m-1}{n-1}$ |
 
@@ -499,15 +499,15 @@ b.  Is $\hat{\beta}$ a valid estimator of the ATE? Explain your answer.
 
     ::: {.callout-note title="Answer"}
     The estimate $\hat \beta$ is equivalent to our standard difference
-    ofmeans estimator. We showed in class that in the case of a
+    of means estimator. We showed in class that in the case of a
     completely randomized experiment, this estimator is unbiased for the
     SATE assuming consistency.
 
     \
-    \
-    It we were instead looking at a Bernoulli trails experiment, it
-    would beunbiased for the ATE. Because this is not the case,
-    $\hat \beta$ is not an appropriate estimator of the ATE.
+    If we zoom out to the super-population setting, the SATE is now a
+    random variable since there is a different SATE for each sample.
+    Each SATE is unbiased for the population ATE. Therefore, $\hat\beta$
+    is also unbiased for the ATE.
     :::
 
 ## References

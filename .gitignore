@@ -1,3 +1,9 @@
+.DS_Store
+.Rhistory
+data/
+lab*
+reading*
+
 # directories to ignore
 /.quarto/
 /*_cache/
@@ -6,3 +12,4 @@
 *.pdf
 *.html
 
+.Rproj.user
